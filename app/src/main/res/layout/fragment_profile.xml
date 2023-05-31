@@ -9,13 +9,37 @@
     <!-- TODO: Update blank fragment layout -->
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/logout"
+        android:id="@+id/rents"
         android:layout_width="330dp"
         android:layout_height="72dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center"
         android:layout_marginBottom="23dp"
+        android:text="Rent"
+        android:textColor="#6E6861"
+        android:textSize="20dp" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/returns"
+        android:layout_width="330dp"
+        android:layout_height="72dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center"
+        android:layout_marginBottom="-75dp"
+        android:text="Return"
+        android:textColor="#6E6861"
+        android:textSize="20dp" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/logout"
+        android:layout_width="330dp"
+        android:layout_height="72dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center"
+        android:layout_marginBottom="-165dp"
         android:text="LogOut"
         android:textColor="#6E6861"
         android:textSize="20dp" />

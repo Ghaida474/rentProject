@@ -4,11 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/colorr"
-    tools:context=".deleteActivity">
-<!---->
+    tools:context=".Rent2Activity"
+    android:background="@drawable/colorr">
+
+
     <ListView
-        android:id="@+id/seatlist"
+        android:id="@+id/rentlist"
         android:layout_width="373dp"
         android:layout_height="630dp"
         android:layout_marginStart="8dp"
@@ -16,9 +17,11 @@
         android:layout_marginBottom="18dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.636"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Instructions"
-        tools:ignore="ExtraText,MissingConstraints" />
+
+
+        app:layout_constraintTop_toBottomOf="@+id/Instructions" />
 
     <TextView
         android:id="@+id/Instructions"
@@ -28,10 +31,10 @@
         android:layout_marginTop="25dp"
         android:layout_marginEnd="9dp"
         android:layout_marginBottom="19dp"
-        android:text="click on the seating to remove it"
+        android:text="click on the seating to rent it"
         android:textSize="20sp"
         android:textStyle="bold|italic"
-        app:layout_constraintBottom_toTopOf="@+id/seatlist"
+        app:layout_constraintBottom_toTopOf="@+id/rentlist"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.488"
         app:layout_constraintStart_toStartOf="parent"

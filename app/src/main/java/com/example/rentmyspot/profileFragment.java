@@ -14,7 +14,7 @@ import java.io.Serializable;
 
 //
 public class profileFragment extends Fragment implements Serializable {
-    Button add,delete,logout;
+    Button add,delete,logout,rents,returnS;
 //    DBHelper DBHelper;
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -37,6 +37,8 @@ public class profileFragment extends Fragment implements Serializable {
         add = view.findViewById(R.id.add);
         delete = view.findViewById(R.id.delete);
         logout = view.findViewById(R.id.logout);
+        rents=view.findViewById(R.id.rents);
+        returnS=view.findViewById(R.id.returns);
 //        DBHelper = new DBHelper(getActivity());
 
 
@@ -67,6 +69,28 @@ public class profileFragment extends Fragment implements Serializable {
                 startActivity(intent);
             }
         });
+
+        rents.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String username = (String) getActivity().getIntent().getSerializableExtra("username");
+                Intent intent = new Intent(getActivity(), Rent2Activity.class);
+                intent.putExtra("username",username);
+                startActivity(intent);
+            }
+        });
+
+        returnS.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String username = (String) getActivity().getIntent().getSerializableExtra("username");
+                Intent intent = new Intent(getActivity(), Return2Activity.class);
+                intent.putExtra("currentUser", username);
+                startActivity(intent);
+            }
+        });
+
+
 
 
 

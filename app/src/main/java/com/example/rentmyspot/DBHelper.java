@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.EditText;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -218,5 +220,76 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return seatingList;
+    }
+    public boolean rentSeating(Seating seating, String currentUser) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Insert the rented seating into the rented seating table
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(T3COL2, seating.getSname());
+        contentValues.put(T3COL3, currentUser);
+        contentValues.put(T3COL4, seating.getUserneme()); // Assuming T3COL4 is the column for the owner's username in the rented seating table
+
+        long insertResult = db.insert(TABLENAME3, null, contentValues);
+
+        // If the insertion was successful, delete the seating from the available seatings table
+        if (insertResult != -1) {
+            int deleteResult = db.delete(TABLENAME2, T2COL2 + "=? AND " + T2COL3 + "=?", new String[]{seating.getSname(), seating.getUserneme()});
+
+            if (deleteResult > 0) {
+                // Seating was successfully rented (inserted into rented seating table and deleted from available seatings table)
+                db.close();
+                return true;
+            } else {
+                // An error occurred while deleting the seating from the available seatings table
+                db.close();
+                return false;
+            }
+        } else {
+            // An error occurred while inserting the seating into the rented seating table
+            db.close();
+            return false;
+        }
+
+    }
+    public List<Seating> getAllRentedSeatings(String currentUser) {
+        List<Seating> rentedSeatingList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Use a WHERE clause to filter the results based on the current user's username
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLENAME3 + " WHERE " + T3COL1 + " = ?", new String[]{currentUser});
+
+        if (cursor.moveToFirst()) {
+            do {
+                String ownerUsername = cursor.getString(1);
+                String seatingName = cursor.getString(2);
+                String seatingCategory = cursor.getString(3);
+                int seatingPrice = cursor.getInt(4);
+                String seatingDescription = cursor.getString(5);
+                byte[] imageData = cursor.getBlob(6);
+
+                Seating rentedSeating = new Seating(ownerUsername, seatingName, seatingCategory, seatingPrice, seatingDescription, imageData);
+                rentedSeatingList.add(rentedSeating);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return rentedSeatingList;
+    }
+    public boolean removeRentedSeating(Seating seating) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        int deleteResult = db.delete(TABLENAME3, T3COL2 + "=? AND " + T3COL4 + "=?", new String[]{seating.getSname(), seating.getUserneme()});
+
+        if (deleteResult > 0) {
+            // Seating was successfully removed from the rented seatings table
+            db.close();
+            return true;
+        } else {
+            // An error occurred while deleting the seating from the rented seatings table
+            db.close();
+            return false;
+        }
     }
 }
