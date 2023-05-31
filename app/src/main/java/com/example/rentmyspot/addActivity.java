@@ -42,7 +42,6 @@ public class addActivity extends SigninActivity implements Serializable {
     private Uri mImageUri;
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int REQUEST_IMAGE_CAPTURE = 2;
-    protected boolean isRented;
     @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,29 +76,27 @@ public class addActivity extends SigninActivity implements Serializable {
             @Override
             public void onClick(View v) {
                 try {
-                    String username = (String) getIntent().getSerializableExtra("username");
+                    String username = (String)getIntent().getSerializableExtra("username");
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mImageUri);
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                     byte[] byteArray = stream.toByteArray();
-                    boolean isRented =false;
 
-                    newSeating = new Seating(username,
+                    newSeating = new Seating (username,
                             Sname.getText().toString(),
                             category,
                             Integer.parseInt(Sprice.getText().toString()),
                             Sdescription.getText().toString(),
-                            byteArray,
-                            isRented
-                    );
+                            byteArray
+                            );
 
                     Toast.makeText(addActivity.this, newSeating.toString(), Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(addActivity.this, "Enter Valid input", Toast.LENGTH_SHORT).show();
-                    newSeating = new Seating("-", "-", "ERROR", 0, "-", null, false);
+                    newSeating = new Seating("-" , "-1", "ERROR", 0 , "-",null );
                 }
                 boolean b = DB.addSeating(newSeating);
-                Toast.makeText(addActivity.this, "added " + b, Toast.LENGTH_SHORT).show();
+                Toast.makeText(addActivity.this, "added "+b, Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -44,11 +44,14 @@ public class homepageFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         list = view.findViewById(R.id.list);
         DB = new DBHelper(getActivity().getApplicationContext());
-        ShowSeatsOnListView(DB);
+
+        String currentUser = getArguments().getString("username");
+
+        ShowSeatsOnListView(DB, currentUser);
     }
 
-    private void ShowSeatsOnListView(DBHelper dataBaseHelper) {
-        seatArrayAdapter = new SeatingListAdapter(getActivity().getApplicationContext(), dataBaseHelper.ListALLseatings());
+    private void ShowSeatsOnListView(DBHelper dataBaseHelper, String currentUser) {
+        seatArrayAdapter = new SeatingListAdapter(getActivity().getApplicationContext(), dataBaseHelper.ListALLseatings(currentUser));
         list.setAdapter(seatArrayAdapter);
     }
 }

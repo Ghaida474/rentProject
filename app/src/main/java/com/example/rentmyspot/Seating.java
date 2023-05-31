@@ -5,64 +5,64 @@ import android.graphics.BitmapFactory;
 import java.util.Arrays;
 //
 public class Seating {
-    private String username;
-    private String sName;
-    private String sCategory;
-    private int sPrice;
-    private String sDescription;
-    private byte[] imageData;
-    private boolean rented;
 
-    public Seating(String username, String sName, String sCategory, int sPrice, String sDescription, byte[] imageData, boolean rented) {
-        this.username = username;
-        this.sName = sName;
-        this.sCategory = sCategory;
-        this.sPrice = sPrice;
-        this.sDescription = sDescription;
+    String userneme;
+    String Sname;
+    String Scategory;
+    int Sprice;
+    String Sdescription;
+     byte[] imageData;
+
+    public Seating(String userneme, String Sname, String Scatogary, int Sprice, String Sdescription,byte[] imageData ) {
+       this.userneme = userneme;
+        this.Sname = Sname;
+        this.Scategory = Scatogary;
+        this.Sprice = Sprice;
+        this.Sdescription = Sdescription;
         this.imageData = imageData;
-        this.rented = rented;
     }
 
-    public Seating() {}
+    public Seating(){}
 
-    public String getUsername() {
-        return username;
+
+    public String getUserneme() {
+        return userneme;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserneme(String userneme) {
+        this.userneme = userneme;
     }
 
-    public String getSName() {
-        return sName;
+    public String getSname() {
+        return Sname;
     }
 
-    public void setSName(String sName) {
-        this.sName = sName;
+    public void setSname(String sname) {
+        Sname = sname;
     }
 
-    public String getSCategory() {
-        return sCategory;
+    public String getScategory() {
+        return Scategory;
     }
 
-    public void setSCategory(String sCategory) {
-        this.sCategory = sCategory;
+    public void setScategory(String scatogary) {
+        Scategory = scatogary;
     }
 
-    public int getSPrice() {
-        return sPrice;
+    public int getSprice() {
+        return Sprice;
     }
 
-    public void setSPrice(int sPrice) {
-        this.sPrice = sPrice;
+    public void setSprice(int sprice) {
+        Sprice = sprice;
     }
 
-    public String getSDescription() {
-        return sDescription;
+    public String getSdescription() {
+        return Sdescription;
     }
 
-    public void setSDescription(String sDescription) {
-        this.sDescription = sDescription;
+    public void setSdescription(String sdescription) {
+        Sdescription = sdescription;
     }
 
     public byte[] getImageData() {
@@ -73,21 +73,16 @@ public class Seating {
         this.imageData = imageData;
     }
 
-    public boolean isRented() {
-        return rented;
-    }
-
-    public void setRented(boolean rented) {
-        this.rented = rented;
-    }
 
     @Override
     public String toString() {
         return "Seating Information\n"
-                + "User Name: " + username
-                + "\nSeating Name: " + sName
-                + "\nSeating Category: " + sCategory
-                + "\nSeating Price: " + sPrice
-                + "\nSeating Description: " + sDescription;
+                + "user Name: " + userneme
+                + "\nSeating Name: " + Sname
+                + "\nSeating Category: " + Scategory
+                + "\nSeating Price: " + Sprice
+                + "\nSeating Description: " + Sdescription
+//                + "Seating Image: " + Arrays.toString(imageData)
+                ;
     }
 }
