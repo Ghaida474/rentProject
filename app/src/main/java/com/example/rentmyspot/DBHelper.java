@@ -10,6 +10,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 //
 public class DBHelper extends SQLiteOpenHelper {
@@ -37,6 +38,17 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String T3COL3 = "OwnerUsername";
     public static final String T3COL4 = "RenterUsername";
 
+    public static final String T3COL5="SeatingName";
+
+    public static final String T3COL6="SeatingCategory";
+
+    public static final String T3COL7="SeatingPrice";
+
+    public static final String T3COL8="SeatingDescription";
+
+    public static final String T3COL9="seatingImage";
+
+
     public DBHelper(@Nullable Context context) {
         super(context, DBNAME, null, 1);
     }
@@ -60,6 +72,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 + T3COL2 + " INTEGER,"
                 + T3COL3 + " TEXT,"
                 + T3COL4 + " TEXT,"
+                +T3COL5+"TEXT,"
+                +T3COL6+"INTEGER,"
+                +T3COL7+"TEXT,"
+                +T3COL8+"BLOB,"
                 + "FOREIGN KEY(" + T3COL2 + ") REFERENCES " + TABLENAME2 + "(" + T2COL1 + ")"
                 + ")");
     }
@@ -191,92 +207,77 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return returnList;
     }
-    public List<Seating> ListALLseatings(String currentUser) {
-        List<Seating> seatingList = new ArrayList<>();
+    public List<Seating> ListAllSeatings(String currentUser) {
+        List<Seating> seatings = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLENAME2
-                + " WHERE " + T2COL2 + " != ?"
-                + " AND " + T2COL1 + " NOT IN (SELECT " + T3COL2
-                + " FROM " + TABLENAME3 + ")", new String[]{currentUser});
+        String query = "SELECT * FROM " + TABLENAME2;
+        Cursor cursor = db.rawQuery(query, null);
 
         if (cursor.moveToFirst()) {
             do {
+                int id = cursor.getInt(0);
+                String ownerUsername = cursor.getString(1);
 
-                    String username = cursor.getString(1);
-                    String SName = cursor.getString(2);
-                    String Scat = cursor.getString(3);
-                    int Sprice = cursor.getInt(4);
-                    String Sdes = cursor.getString(5);
-                    byte[] image = cursor.getBlob(6);
+                if (!ownerUsername.equals(currentUser)) {
+                    // Check if the seating is rented
+                    String rentedSeatingQuery = "SELECT * FROM " + TABLENAME3 + " WHERE " + T3COL2 + " = ?";
+                    Cursor rentedSeatingCursor = db.rawQuery(rentedSeatingQuery, new String[]{String.valueOf(id)});
 
-                    Seating newSeat = new Seating(username, SName, Scat, Sprice, Sdes,image);
-                    seatingList.add(newSeat);
-                // Create a new Seating object and populate it with data from the cursor
-                // Add the Seating object to the seatingList
+                    // If the seating is not rented, add it to the list
+                    if (!rentedSeatingCursor.moveToFirst()) {
+                        String seatingName = cursor.getString(2);
+                        String seatingCategory = cursor.getString(3);
+                        int seatingPrice = Integer.parseInt(cursor.getString(4));
+                        String seatingDescription = cursor.getString(5);
+                        byte[] seatingImageData = cursor.getBlob(6);
+
+                        Seating seating = new Seating( ownerUsername, seatingName, seatingCategory, seatingPrice, seatingDescription, seatingImageData);
+                        seatings.add(seating);
+                    }
+                    rentedSeatingCursor.close();
+                }
             } while (cursor.moveToNext());
         }
-
         cursor.close();
-        db.close();
-        return seatingList;
+        return seatings;
     }
     public boolean rentSeating(Seating seating, String currentUser) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         // Insert the rented seating into the rented seating table
         ContentValues contentValues = new ContentValues();
-        contentValues.put(T3COL2, seating.getSname());
-        contentValues.put(T3COL3, currentUser);
-        contentValues.put(T3COL4, seating.getUserneme()); // Assuming T3COL4 is the column for the owner's username in the rented seating table
+        contentValues.put(T3COL3, seating.getUserneme());
+        contentValues.put(T3COL4, currentUser);
 
         long insertResult = db.insert(TABLENAME3, null, contentValues);
 
         // If the insertion was successful, delete the seating from the available seatings table
         if (insertResult != -1) {
-            int deleteResult = db.delete(TABLENAME2, T2COL2 + "=? AND " + T2COL3 + "=?", new String[]{seating.getSname(), seating.getUserneme()});
+            String whereClause = T2COL2 + "=? AND " + T2COL3 + "=?";
+            String[] whereArgs = new String[]{seating.getUserneme(), seating.getSname()};
+            Log.d("DBHelper", "Delete seating SQL: WHERE " + whereClause + ", Args: " + Arrays.toString(whereArgs));
+
+            int deleteResult = db.delete(TABLENAME2, whereClause, whereArgs);
 
             if (deleteResult > 0) {
                 // Seating was successfully rented (inserted into rented seating table and deleted from available seatings table)
                 db.close();
+                Log.e("DBHelper","rent successfully");
                 return true;
             } else {
                 // An error occurred while deleting the seating from the available seatings table
+                Log.e("DBHelper", "Failed to delete seating from available seatings table. Seating name: " + seating.getSname() + ", owner username: " + seating.getUserneme());
                 db.close();
                 return false;
             }
         } else {
             // An error occurred while inserting the seating into the rented seating table
+            Log.e("DBHelper", "Failed to insert seating into rented seating table.");
             db.close();
             return false;
         }
-
     }
-    public List<Seating> getAllRentedSeatings(String currentUser) {
-        List<Seating> rentedSeatingList = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
 
-        // Use a WHERE clause to filter the results based on the current user's username
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLENAME3 + " WHERE " + T3COL1 + " = ?", new String[]{currentUser});
-
-        if (cursor.moveToFirst()) {
-            do {
-                String ownerUsername = cursor.getString(1);
-                String seatingName = cursor.getString(2);
-                String seatingCategory = cursor.getString(3);
-                int seatingPrice = cursor.getInt(4);
-                String seatingDescription = cursor.getString(5);
-                byte[] imageData = cursor.getBlob(6);
-
-                Seating rentedSeating = new Seating(ownerUsername, seatingName, seatingCategory, seatingPrice, seatingDescription, imageData);
-                rentedSeatingList.add(rentedSeating);
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
-        db.close();
-        return rentedSeatingList;
-    }
     public boolean removeRentedSeating(Seating seating) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -291,5 +292,104 @@ public class DBHelper extends SQLiteOpenHelper {
             db.close();
             return false;
         }
+    }
+    public List<Seating> returnPageList(String currentUser) {
+        List<Seating> seatings = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Query to fetch rented seatings for the current user
+        String rentedSeatingsQueryString = "SELECT " + T3COL2 + " FROM " + TABLENAME3 + " WHERE " + T3COL4 + " = ?";
+        Cursor rentedSeatingsCursor = db.rawQuery(rentedSeatingsQueryString, new String[]{currentUser});
+
+        if (rentedSeatingsCursor.moveToFirst()) {
+            do {
+                int seatingId = rentedSeatingsCursor.getInt(0);
+
+                // Query to fetch seating information from TABLENAME2
+                String seatingInfoQueryString = "SELECT * FROM " + TABLENAME2 + " WHERE " + T2COL1 + " = ?";
+                Cursor seatingInfoCursor = db.rawQuery(seatingInfoQueryString, new String[]{String.valueOf(seatingId)});
+
+                if (seatingInfoCursor.moveToFirst()) {
+                    String username = seatingInfoCursor.getString(1);
+                    String SName = seatingInfoCursor.getString(2);
+                    String Scat = seatingInfoCursor.getString(3);
+                    int Sprice = seatingInfoCursor.getInt(4);
+                    String Sdes = seatingInfoCursor.getString(5);
+                    byte[] image = seatingInfoCursor.getBlob(6);
+
+                    Seating newSeat = new Seating(username, SName, Scat, Sprice, Sdes, image);
+                    seatings.add(newSeat);
+                }
+
+                seatingInfoCursor.close();
+            } while (rentedSeatingsCursor.moveToNext());
+        }
+
+        rentedSeatingsCursor.close();
+        db.close();
+        return seatings;
+    }
+    public List<Seating> getAllRentedSeatings(String currentUser) {
+        List<Seating> rentedSeatings = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Query to fetch rented seatings
+        String queryString = "SELECT s.* FROM " + TABLENAME3 + " rs" +
+                " INNER JOIN " + TABLENAME2 + " s ON rs." + T3COL2 + " = s." + T2COL1 +
+                " WHERE rs." + T3COL4 + " = ?";
+
+        Cursor cursor = db.rawQuery(queryString, new String[]{currentUser});
+
+        if (cursor.moveToFirst()) {
+            do {
+                int seatingIdIndex = cursor.getColumnIndex(T2COL1);
+                int usernameIndex = cursor.getColumnIndex(T2COL2);
+                int seatingNameIndex = cursor.getColumnIndex(T2COL3);
+                int seatingCategoryIndex = cursor.getColumnIndex(T2COL4);
+                int seatingPriceIndex = cursor.getColumnIndex(T2COL5);
+                int seatingDescriptionIndex = cursor.getColumnIndex(T2COL6);
+                int seatingImageIndex = cursor.getColumnIndex(T2COL7);
+
+                if (seatingIdIndex != -1 && usernameIndex != -1 && seatingNameIndex != -1 && seatingCategoryIndex != -1 && seatingPriceIndex != -1 && seatingDescriptionIndex != -1 && seatingImageIndex != -1) {
+                    int seatingId = cursor.getInt(seatingIdIndex);
+                    String username = cursor.getString(usernameIndex);
+                    String seatingName = cursor.getString(seatingNameIndex);
+                    String seatingCategory = cursor.getString(seatingCategoryIndex);
+                    int seatingPrice = cursor.getInt(seatingPriceIndex);
+                    String seatingDescription = cursor.getString(seatingDescriptionIndex);
+                    byte[] seatingImage = cursor.getBlob(seatingImageIndex);
+
+                    Seating rentedSeating = new Seating(username, seatingName, seatingCategory, seatingPrice, seatingDescription, seatingImage);
+                    rentedSeatings.add(rentedSeating);
+                }
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+
+        return rentedSeatings;
+    }
+    public Seating getSeatingByID(int seatingID) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLENAME2 + " WHERE " + T2COL1 + " = ?", new String[]{String.valueOf(seatingID)});
+
+        if (cursor.moveToFirst()) {
+            String ownerUsername = cursor.getString(1); // T2COL2
+            String seatingName = cursor.getString(2);   // T2COL3
+            String seatingCategory = cursor.getString(3); // T2COL4
+            int seatingPrice = cursor.getInt(4);         // T2COL5
+            String seatingDescription = cursor.getString(5); // T2COL6
+            byte[] imageData = cursor.getBlob(6);        // T2COL7
+
+            Seating seating = new Seating(ownerUsername, seatingName, seatingCategory, seatingPrice, seatingDescription, imageData);
+            cursor.close();
+            db.close();
+            return seating;
+        }
+
+        cursor.close();
+        db.close();
+        return null;
     }
 }

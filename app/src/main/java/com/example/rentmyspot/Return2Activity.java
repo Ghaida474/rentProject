@@ -24,8 +24,8 @@ public class Return2Activity extends AppCompatActivity {
     }
 
     private void displayRentedSeatings(String currentUser) {
-        DBHelper dbHelper = new DBHelper(this);
-        List<Seating> rentedSeatings = dbHelper.getAllRentedSeatings(currentUser);
+      DBHelper dbHelper = new DBHelper(this);
+        List<Seating> rentedSeatings = dbHelper.returnPageList(currentUser);
 
         ListView rentedSeatingsListView = findViewById(R.id.rentlist);
         ArrayAdapter<Seating> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, rentedSeatings);

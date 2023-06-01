@@ -3,6 +3,7 @@ package com.example.rentmyspot;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -25,7 +26,11 @@ public class Rent2Activity extends AppCompatActivity {
         username = (String) getIntent().getSerializableExtra("username");
         db = new DBHelper(this);
 
-        seatings = (ArrayList<Seating>) db.ListALLseatings(username);
+        seatings = (ArrayList<Seating>) db.ListAllSeatings(username);
+
+        // Log the size of the seatings list
+        Log.d("Rent2Activity", "onCreate: seatings size = " + seatings.size());
+
         seatArrayAdapter = new SeatingListAdapter(this, seatings);
         list.setAdapter(seatArrayAdapter);
 

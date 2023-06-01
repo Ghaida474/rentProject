@@ -51,7 +51,7 @@ public class homepageFragment extends Fragment {
     }
 
     private void ShowSeatsOnListView(DBHelper dataBaseHelper, String currentUser) {
-        seatArrayAdapter = new SeatingListAdapter(getActivity().getApplicationContext(), dataBaseHelper.ListALLseatings(currentUser));
+        seatArrayAdapter = new SeatingListAdapter(getActivity().getApplicationContext(), dataBaseHelper.ListALLseatings());
         list.setAdapter(seatArrayAdapter);
     }
 }
